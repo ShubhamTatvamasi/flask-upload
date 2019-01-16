@@ -9,6 +9,9 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# 1 MB upload limit
+upload_size = 1 * 1024 * 1024
+
 def limit_content_length(max_length):
     def decorator(f):
         @wraps(f)
@@ -20,12 +23,12 @@ def limit_content_length(max_length):
         return wrapper
     return decorator
 
-@limit_content_length(1 * 1024 * 1024)
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
+@limit_content_length(upload_size)
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
